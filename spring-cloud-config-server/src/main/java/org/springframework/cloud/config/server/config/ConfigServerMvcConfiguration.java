@@ -95,7 +95,7 @@ public class ConfigServerMvcConfiguration implements WebMvcConfigurer {
 		public ResourceController resourceController(ResourceRepository repository, EnvironmentRepository envRepository,
 				ConfigServerProperties server) {
 			ResourceController controller = new ResourceController(secured(repository),
-					encrypted(envRepository, server), this.resourceEncryptorMap);
+					secured(encrypted(envRepository, server)), this.resourceEncryptorMap);
 			controller.setEncryptEnabled(server.getEncrypt().isEnabled());
 			controller.setPlainTextEncryptEnabled(server.getEncrypt().isPlainTextEncrypt());
 			return controller;
