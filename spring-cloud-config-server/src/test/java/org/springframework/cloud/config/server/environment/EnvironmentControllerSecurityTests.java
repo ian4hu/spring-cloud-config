@@ -43,6 +43,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -145,6 +146,23 @@ public class EnvironmentControllerSecurityTests {
 		// Authorized by label level
 		ResponseEntity<String> authorized = new TestRestTemplate("user1", "passwd")
 				.getForEntity("http://localhost:" + port + "/foo/default/dev/a.txt", String.class);
+		assertThat(authorized.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(authorized.getBody()).isEqualTo("Hello World!");
+
+		// Nested dir
+		authorized = new TestRestTemplate("user1", "passwd")
+			.getForEntity("http://localhost:" + port + "/foo/default/dev/someDir/a.txt", String.class);
+		assertThat(authorized.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(authorized.getBody()).isEqualTo("Hello World!");
+
+		// Binary
+		authorized = new TestRestTemplate("user1", "passwd")
+			.exchange(
+				RequestEntity.get("http://localhost:" + port + "/foo/default/dev/someDir/a.txt")
+					.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+					.build(),
+				String.class
+			);
 		assertThat(authorized.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(authorized.getBody()).isEqualTo("Hello World!");
 	}
